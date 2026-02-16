@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boudhina Shop | Ultimate Marketplace</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--primary:#FFD700;
+--primary-dark:#ccac00;
+--secondary:#25D366;
+--danger:#ff4757;
+--info:#0084ff;
+--bg:#0b0b0b;
+--card-bg:#1a1a1a;
+--nav-bg:rgba(15,15,15,.95);
+--text-main:#ffffff;
+--text-muted:#b0b0b0;
+--border:rgba(255,255,255,.08);
+--chat-sent:#056162;
+--chat-received:#262d31;
+--transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+margin:0;
+font-family:'Cairo',sans-serif;
+background:var(--bg);
+color:var(--text-main);
+overflow-x:hidden;
+padding-bottom:80px;
+}
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+background:var(--nav-bg);
+backdrop-filter:blur(10px);
+position:sticky;
+top:0;
+z-index:1000;
+border-bottom:1px solid var(--border);
+}
+.brand-logo{
+font-weight:900;
+font-size:22px;
+color:var(--primary);
+display:flex;
+align-items:center;
+gap:8px;
+}
+#msg-badge{
+background:var(--danger);
+color:#fff;
+font-size:10px;
+padding:3px 7px;
+border-radius:50%;
+display:none;
+}
+.header-actions{display:flex;gap:15px}
+.icon-btn{
+background:none;
+border:none;
+color:var(--text-main);
+font-size:20px;
+cursor:pointer;
+position:relative;
+}
+.badge{
+position:absolute;
+top:-8px;
+right:-10px;
+background:var(--danger);
+color:white;
+font-size:11px;
+padding:2px 6px;
+border-radius:50%;
+font-weight:bold;
+border:2px solid var(--bg);
+}
+.container{max-width:600px;margin:0 auto;padding:20px}
+.page{display:none}
+.page.active{display:block}
+.search-container{position:relative;margin-bottom:20px}
+.search-input{
+width:100%;
+background:var(--card-bg);
+border:1px solid var(--border);
+padding:15px 45px 15px 20px;
+border-radius:15px;
+color:#fff;
+font-family:'Cairo';
+}
+.search-icon{
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+color:var(--text-muted);
+}
+.slider-wrapper{
+margin-bottom:20px;
+overflow:hidden;
+border-radius:15px;
+}
+.slider{
+display:flex;
+transition:.5s;
+}
+.slider img{
+width:100%;
+flex-shrink:0;
+}
+.bottom-nav{
+position:fixed;
+bottom:0;
+width:100%;
+height:70px;
+background:var(--nav-bg);
+border-top:1px solid var(--border);
+display:flex;
+justify-content:space-around;
+align-items:center;
+}
+.nav-item{
+display:flex;
+flex-direction:column;
+align-items:center;
+color:var(--text-muted);
+background:none;
+border:none;
+font-size:11px;
+gap:4px;
+}
+.nav-item.active{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="auth-screen" style="position:fixed;inset:0;background:#0b0b0b;z-index:9999;display:flex;align-items:center;justify-content:center;">
+<div style="width:90%;max-width:400px;background:#1a1a1a;padding:30px;border-radius:20px;border:1px solid var(--border);">
+<h2 style="text-align:center;color:var(--primary);margin-top:0;">Boudhina Shop</h2>
+<input id="reg-first" placeholder="الاسم" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<input id="reg-last" placeholder="اللقب" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<input id="reg-user" placeholder="اسم المستخدم" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<input id="reg-email" placeholder="الإيميل" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<input id="reg-pass" type="password" placeholder="كلمة السر" style="width:100%;margin-bottom:15px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<button onclick="registerUser()" style="width:100%;padding:10px;border:none;border-radius:10px;background:var(--primary);font-weight:bold;">تسجيل</button>
+<button onclick="loginUser()" style="width:100%;padding:10px;border:none;border-radius:10px;background:var(--info);color:#fff;margin-top:10px;">دخول</button>
+</div>
+</div>
+
+<header>
+<div class="brand-logo">
+<i class="fa-solid fa-bolt-lightning"></i>
+Boudhina Shop
+<span id="msg-badge">0</span>
+</div>
+
+<div class="header-actions">
+<button class="icon-btn" onclick="app.navigate('cart')">
+<i class="fa-solid fa-basket-shopping"></i>
+<span class="badge" id="cart-badge">0</span>
+</button>
+</div>
+</header>
+<div class="container">
+
+<!-- الصفحة الرئيسية -->
+<div id="page-home" class="page active">
+
+<div class="search-container">
+<i class="fa-solid fa-magnifying-glass search-icon"></i>
+<input type="text" class="search-input" placeholder="ابحث..." id="mainSearch">
+</div>
+
+<!-- Slider -->
+<div class="slider-wrapper">
+<div class="slider" id="slider">
+<img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600">
+<img src="https://images.unsplash.com/photo-1550745674-9182175b127c?w=600">
+<img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=600">
+</div>
+</div>
+
+<h3 data-i18n="featured">العروض المميزة</h3>
+<div id="products-list"></div>
+
+</div>
+
+<!-- صفحة القفة -->
+<div id="page-cart" class="page">
+<h2 data-i18n="cartTitle">قفتي</h2>
+<div id="cart-list"></div>
+</div>
+
+<!-- صفحة البيع -->
+<div id="page-sell" class="page">
+<h2 data-i18n="postFree">انشر عرضك مجاناً</h2>
+
+<input id="sell-title" placeholder="اسم اللعبة" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<input id="sell-price" type="number" placeholder="السعر" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;">
+<textarea id="sell-desc" placeholder="الوصف" style="width:100%;margin-bottom:10px;padding:10px;border-radius:8px;border:none;background:#222;color:#fff;"></textarea>
+
+<input type="file" id="sell-img" accept="image/*" style="width:100%;margin-bottom:15px;color:#fff;">
+
+<button onclick="app.postAd()" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--primary);font-weight:bold;">
+<span data-i18n="publishNow">نشر العرض الآن</span>
+</button>
+</div>
+
+<!-- صفحة الإعدادات -->
+<div id="page-settings" class="page">
+<h3 data-i18n="account">حسابي</h3>
+
+<div onclick="toggleLanguage()" style="margin-top:20px;padding:15px;background:var(--card-bg);border-radius:12px;cursor:pointer;">
+<span id="lang-label">تغيير اللغة</span>
+<span id="current-lang" style="float:left;">العربية</span>
+</div>
+
+<div onclick="logoutUser()" style="margin-top:10px;padding:15px;background:var(--card-bg);border-radius:12px;color:var(--danger);cursor:pointer;">
+تسجيل الخروج
+</div>
+</div>
+
+</div>
+
+<!-- نافذة الدردشة -->
+<div id="chat-window" style="position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;z-index:3000;">
+<div style="padding:15px;background:var(--nav-bg);display:flex;align-items:center;gap:10px;">
+<button onclick="app.closeChat()" style="background:none;border:none;color:#fff;">
+<i class="fa-solid fa-chevron-right"></i>
+</button>
+<b id="chat-partner-name"></b>
+</div>
+
+<div id="chat-messages" style="flex:1;padding:15px;overflow-y:auto;"></div>
+
+<div style="display:flex;padding:10px;background:var(--nav-bg);gap:10px;">
+<input id="chat-input" style="flex:1;padding:10px;border-radius:20px;border:none;background:#222;color:#fff;">
+<button onclick="app.sendMsg()" style="background:var(--primary);border:none;border-radius:50%;width:45px;height:45px;">
+<i class="fa-solid fa-paper-plane"></i>
+</button>
+</div>
+</div>
+
+<!-- التنقل السفلي -->
+<nav class="bottom-nav">
+<button class="nav-item active" onclick="app.navigate('home',this)">
+<i class="fa-solid fa-house-chimney"></i>
+<span data-i18n="home">الرئيسية</span>
+</button>
+
+<button class="nav-item" onclick="app.navigate('sell',this)">
+<i class="fa-solid fa-circle-plus"></i>
+<span data-i18n="sell">بيع</span>
+</button>
+
+<button class="nav-item" onclick="app.navigate('cart',this)">
+<i class="fa-solid fa-basket-shopping"></i>
+<span data-i18n="cart">قفتي</span>
+</button>
+
+<button class="nav-item" onclick="app.navigate('settings',this)">
+<i class="fa-solid fa-user-gear"></i>
+<span data-i18n="account">حسابي</span>
+</button>
+</nav>
+<script>
+// بيانات المستخدم والمسجلين
+let users = JSON.parse(localStorage.getItem('b_users')) || [];
+let currentUser = JSON.parse(localStorage.getItem('b_currentUser')) || null;
+
+// بيانات التطبيق
+const app = {
+state:{
+products:[],
+cart:JSON.parse(localStorage.getItem('b_cart')) || [],
+chats:JSON.parse(localStorage.getItem('b_chats')) || [],
+activeChat:null
+},
+
+init(){
+this.renderProducts();
+this.updateUI();
+this.setupSearch();
+this.initSlider();
+if(currentUser){document.getElementById('auth-screen').style.display='none'}
+},
+
+// ---------- المستخدم ----------
+registerUser(){
+const first=document.getElementById('reg-first').value.trim();
+const last=document.getElementById('reg-last').value.trim();
+const user=document.getElementById('reg-user').value.trim();
+const email=document.getElementById('reg-email').value.trim();
+const pass=document.getElementById('reg-pass').value.trim();
+if(!first||!last||!user||!email||!pass){alert('اكمل جميع البيانات');return}
+if(users.some(u=>u.user===user||u.email===email)){alert('المستخدم أو الإيميل موجود مسبقاً');return}
+const newUser={first,last,user,email,pass};
+users.push(newUser);
+localStorage.setItem('b_users',JSON.stringify(users));
+alert('تم التسجيل بنجاح');loginUser();
+},
+
+loginUser(){
+const user=document.getElementById('reg-user').value.trim();
+const pass=document.getElementById('reg-pass').value.trim();
+const found=users.find(u=>u.user===user&&u.pass===pass);
+if(!found){alert('اسم المستخدم أو كلمة السر خاطئة');return}
+currentUser=found;
+localStorage.setItem('b_currentUser',JSON.stringify(currentUser));
+document.getElementById('auth-screen').style.display='none';
+app.updateUI();
+},
+
+logoutUser(){
+currentUser=null;
+localStorage.removeItem('b_currentUser');
+location.reload();
+},
+
+// ---------- التنقل ----------
+navigate(pageId,btn){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(`page-${pageId}`).classList.add('active');
+if(btn){document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));btn.classList.add('active')}
+if(pageId==='cart')this.renderCart();
+window.scrollTo(0,0);
+},
+
+// ---------- السلايدر ----------
+initSlider(){
+const slider=document.getElementById('slider');
+if(!slider)return;
+let index=0;
+setInterval(()=>{
+index=(index+1)%slider.children.length;
+slider.style.transform=`translateX(-${index*100}%)`;
+},3000);
+},
+
+// ---------- البحث ----------
+setupSearch(){
+document.getElementById('mainSearch').addEventListener('input',e=>{
+const q=e.target.value.toLowerCase();
+const filtered=this.state.products.filter(p=>
+p.title.toLowerCase().includes(q)||p.game.toLowerCase().includes(q));
+this.renderProducts(filtered);
+});
+},
+
+// ---------- المنتجات ----------
+renderProducts(data=this.state.products){
+const container=document.getElementById('products-list');
+container.innerHTML='';
+if(data.length===0){container.innerHTML='<p style="color:var(--text-muted);text-align:center;">لا يوجد عروض بعد.</p>';return;}
+data.forEach(p=>{
+container.innerHTML+=`
+<div class="product-card">
+<div class="image-wrapper">
+<img src="${p.img}" class="product-img" alt="${p.title}">
+<span class="category-tag">${p.game}</span>
+</div>
+<div class="product-info">
+<div class="product-header">
+<h4 class="product-title">${p.title}</h4>
+<span class="product-price">${p.price} DT</span>
+</div>
+<p class="product-desc">${p.desc}</p>
+<button class="btn btn-primary" onclick="app.addToCart(${p.id})">
+<i class="fa-solid fa-cart-plus"></i> أضف إلى القفة
+</button>
+</div>
+</div>
+`;
+});
+},
+
+// ---------- القفة ----------
+addToCart(id){
+const item=this.state.products.find(p=>p.id===id);
+if(this.state.cart.some(c=>c.id===id)){this.toast('هذا المنتج موجود بالفعل');return}
+this.state.cart.push(item);
+this.save();this.updateUI();this.renderCart();this.toast('تمت الإضافة للقفة');
+},
+
+removeFromCart(id){
+this.state.cart=this.state.cart.filter(c=>c.id!==id);
+this.save();this.updateUI();this.renderCart();this.toast('تم الحذف من القفة');
+},
+
+renderCart(){
+const container=document.getElementById('cart-list');
+container.innerHTML='';
+if(this.state.cart.length===0){
+container.innerHTML=`<p style="color:var(--text-muted);text-align:center;">قفتي فارغة</p>`;
+return;
+}
+this.state.cart.forEach(item=>{
+container.innerHTML+=`
+<div class="cart-item">
+<img src="${item.img}" class="cart-thumb">
+<div style="flex-grow:1;">
+<b>${item.title}</b>
+<div style="color:var(--primary)">${item.price} DT</div>
+<div style="font-size:10px;color:var(--text-muted)">البائع: ${item.seller}</div>
+</div>
+<div>
+<button onclick="app.openChat('${item.seller}')">دردشة</button>
+<button onclick="app.removeFromCart(${item.id})">حذف</button>
+</div>
+</div>
+`;
+});
+},
+
+// ---------- الدردشة ----------
+openChat(seller){
+this.state.activeChat=seller;
+document.getElementById('chat-partner-name').innerText=seller;
+document.getElementById('chat-window').style.display='flex';
+this.renderMessages();
+},
+
+closeChat(){document.getElementById('chat-window').style.display='none';},
+
+sendMsg(){
+const input=document.getElementById('chat-input');
+const text=input.value.trim();
+if(!text)return;
+const msg={id:Date.now(),partner:this.state.activeChat,text,type:'sent',time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})};
+this.state.chats.push(msg);
+input.value='';this.renderMessages();this.save();
+this.updateBadge();
+},
+
+renderMessages(){
+const container=document.getElementById('chat-messages');
+container.innerHTML='';
+const filtered=this.state.chats.filter(c=>c.partner===this.state.activeChat);
+filtered.forEach(m=>{
+container.innerHTML+=`<div class="message ${m.type}">${m.text}<span class="message-time">${m.time}</span></div>`;
+});
+container.scrollTop=container.scrollHeight;
+},
+
+updateBadge(){
+if(!currentUser)return;
+const unread=this.state.chats.filter(c=>c.type==='sent'&&c.partner===currentUser.user).length;
+document.getElementById('msg-badge').style.display=unread>0?'inline-block':'none';
+document.getElementById('msg-badge').innerText=unread;
+},
+
+// ---------- نشر عروض ----------
+postAd(){
+const title=document.getElementById('sell-title').value.trim();
+const price=document.getElementById('sell-price').value.trim();
+const desc=document.getElementById('sell-desc').value.trim();
+const file=document.getElementById('sell-img').files[0];
+if(!title||!price){this.toast('اكمل البيانات');return}
+let imgURL='https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=500';
+if(file){imgURL=URL.createObjectURL(file)}
+const newAd={id:Date.now(),title,price:parseFloat(price),game:'Other',desc,seller:currentUser?currentUser.user:'أنت',img:imgURL};
+this.state.products.unshift(newAd);
+this.renderProducts();this.navigate('home');this.toast('تم نشر العرض بنجاح');
+document.getElementById('sell-title').value='';
+document.getElementById('sell-price').value='';
+document.getElementById('sell-desc').value='';
+document.getElementById('sell-img').value='';
+},
+
+// ---------- Helpers ----------
+updateUI(){
+document.getElementById('cart-badge').innerText=this.state.cart.length;
+this.updateBadge();
+},
+
+save(){
+localStorage.setItem('b_cart',JSON.stringify(this.state.cart));
+localStorage.setItem('b_chats',JSON.stringify(this.state.chats));
+}
+};
+
+// ---------- اللغة ----------
+let currentLang='ar';
+const translations={
+ar:{home:'الرئيسية',sell:'بيع',cart:'قفتي',account:'حسابي',featured:'العروض المميزة',postFree:'انشر عرضك مجاناً',cartTitle:'قفتي',publishNow:'نشر العرض الآن'},
+en:{home:'Home',sell:'Sell',cart:'Cart',account:'Account',featured:'Featured Deals',postFree:'Post Free Ad',cartTitle:'My Cart',publishNow:'Publish Now'}
+};
+function toggleLanguage(){
+currentLang=currentLang==='ar'?'en':'ar';
+document.getElementById('current-lang').innerText=currentLang==='ar'?'العربية':'English';
+document.querySelectorAll('[data-i18n]').forEach(el=>{
+const key=el.getAttribute('data-i18n');
+el.innerText=translations[currentLang][key];
+});
+}
+
+// ---------- التهيئة ----------
+app.init();
+</script>
+</body>
+</html>
